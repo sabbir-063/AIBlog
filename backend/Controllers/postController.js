@@ -216,36 +216,23 @@ const toggleLike = async (req, res) => {
     }
 };
 
-// Search posts by query
+// Search posts by text and/or tags
 const searchPosts = async (req, res) => {
-    try {
-        const { query, tags } = req.query;
-        let searchQuery = {};
+  try {
+    const { q, tags } = req.query;
+    let query = {};
 
-        // Handle text search
-        if (query && query.trim() !== '') {
-            searchQuery = {
-                $text: { $search: query }
-            };
-        }
+    if (q) query.$text = { $search: q };
+    if (tags) query.tags = { $in: tags.split(',').map(tag => tag.trim()) };
 
-        // Handle tags filter
-        if (tags) {
-            const tagArray = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
-            if (tagArray.length > 0) {
-                searchQuery.tags = { $in: tagArray };
-            }
-        }
+    const posts = await Post.find(query)
+      .populate("author", "firstname lastname username role profilePicture profileImage")
+      .sort({ createdAt: -1 });
 
-        const posts = await Post.find(searchQuery)
-            .populate("author", "firstname lastname username role profilePicture profileImage")
-            .sort({ createdAt: -1 });
-
-        res.json({ posts });
-    } catch (err) {
-        console.error("Error searching posts:", err);
-        res.status(500).json({ error: "Failed to search posts" });
-    }
+    res.json({ posts });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to search posts" });
+  }
 };
 
 module.exports = {

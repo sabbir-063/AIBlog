@@ -2,29 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../utils/axiosInstance';
 import PostCard from './PostCard';
+import SearchBar from './SearchBar';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const fetchPosts = async (term = '') => {
+    setLoading(true);
+    let url = '/posts/all';
+    if (term) {
+      url = `/posts/search?q=${encodeURIComponent(term)}`;
+    }
+    const response = await axiosInstance.get(url);
+    setPosts(response.data.posts);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.get('/posts/all');
-        setPosts(response.data.posts);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching posts:', err);
-        setError('Failed to fetch posts. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
+    fetchPosts(); // Load all posts initially
   }, []);
+
+const handleSearch = (term) => {
+  setSearchTerm(term);
+  fetchPosts(term);
+};
 
   if (loading) {
     return (
@@ -50,7 +54,10 @@ const Home = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Latest Blog Posts</h1>
+      
+      {/* <h1 className="text-3xl font-bold text-gray-900 mb-8">Latest Blog Posts</h1> */}
+
+      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} onSearch={handleSearch} />
 
       {posts.length === 0 ? (
         <div className="text-center py-10">

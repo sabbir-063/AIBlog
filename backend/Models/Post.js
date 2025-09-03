@@ -20,7 +20,7 @@ const postSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    coverImage: { type: coverImageSchema, required: true }, // Single cover image
+    coverImage: { type: coverImageSchema, required: true },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"

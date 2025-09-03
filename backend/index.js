@@ -7,6 +7,7 @@ const { dbConnect } = require("./DB/dbConnect");
 const authRoutes = require("./Routes/authRoutes");
 const postRoutes = require("./Routes/postRoutes");
 const userRoutes = require('./Routes/userRoutes');
+const aiRoutes = require('./Routes/aiRoutes');
 
 // Database connection
 dbConnect();
@@ -31,6 +32,7 @@ createUploadDirs();
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

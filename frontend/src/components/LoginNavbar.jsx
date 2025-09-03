@@ -75,6 +75,14 @@ const LoginNavbar = () => {
                                     >
                                         Your Profile
                                     </Link>
+                                    <Link
+                                        to="/ai-settings"
+                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        role="menuitem"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        🤖 AI Settings
+                                    </Link>
                                     <button
                                         className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                         role="menuitem"

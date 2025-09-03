@@ -14,6 +14,7 @@ import CreatePost from "./components/CreatePost";
 import Navbar from "./components/NavBar";
 import Profile from "./components/Profile";
 import EditPost from "./components/EditPost";
+import AISettings from "./components/AISettings";
 
 function AppContent() {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ function AppContent() {
           <Route path="/create-post" element={user ? <CreatePost /> : <Navigate to="/login" />} />
           <Route path="/edit-post/:id" element={user ? <EditPost /> : <Navigate to="/login" />} />
           <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path="/ai-settings" element={user ? <AISettings /> : <Navigate to="/login" />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axiosInstance from '../utils/axiosInstance';
 import { useAuth } from '../contexts/AuthContext';
+import AISummaryGenerator from './AISummaryGenerator';
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -148,6 +149,83 @@ const PostDetails = () => {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 
+        {/* AI Tools for Authors/Admins */}
+        {user && (
+          (post.author && user.id === post.author._id) ||
+          user.role === 'admin'
+        ) && (
+            <div className="mb-8">
+              <AISummaryGenerator
+                postId={post._id}
+                currentSummary={post.aiMeta?.summary}
+                onSummaryGenerated={(summary) => {
+                  setPost(prev => ({
+                    ...prev,
+                    aiMeta: {
+                      ...prev.aiMeta,
+                      summary
+                    }
+                  }));
+                }}
+              />
+            </div>
+          )}
+
+        {/* AI Generated Metadata Display */}
+        {post.aiMeta && (
+          <div className="mb-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              AI-Generated Metadata
+            </h3>
+
+            {post.aiMeta.summary && (
+              <div className="mb-4">
+                <h4 className="font-medium text-gray-700 mb-2">📝 Summary (TL;DR)</h4>
+                <p className="text-gray-600 bg-white p-3 rounded border">{post.aiMeta.summary}</p>
+              </div>
+            )}
+
+            {post.aiMeta.seoTitle && (
+              <div className="mb-4">
+                <h4 className="font-medium text-gray-700 mb-2">🔍 SEO Title</h4>
+                <p className="text-gray-600 bg-white p-3 rounded border">{post.aiMeta.seoTitle}</p>
+              </div>
+            )}
+
+            {post.aiMeta.seoDescription && (
+              <div className="mb-4">
+                <h4 className="font-medium text-gray-700 mb-2">📄 Meta Description</h4>
+                <p className="text-gray-600 bg-white p-3 rounded border">{post.aiMeta.seoDescription}</p>
+              </div>
+            )}
+
+            {post.aiMeta.suggestedTags && post.aiMeta.suggestedTags.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-medium text-gray-700 mb-2">🏷️ AI Suggested Tags</h4>
+                <div className="flex flex-wrap gap-2">
+                  {post.aiMeta.suggestedTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {post.aiMeta.generatedAt && (
+              <div className="text-xs text-gray-500 mt-4">
+                Generated on {new Date(post.aiMeta.generatedAt).toLocaleDateString()}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
           <button
@@ -166,7 +244,7 @@ const PostDetails = () => {
             </svg>
             <span>{post.likeCount || 0} {post.likeCount === 1 ? 'Like' : 'Likes'}</span>
           </button>
-          
+
           {user && (
             (post.author && user.id === post.author._id) ||
             user.role === 'admin'

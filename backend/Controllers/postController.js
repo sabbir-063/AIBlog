@@ -1,5 +1,6 @@
 const { Post } = require("../Models/Post");
 const { deleteImage } = require("../Middleware/upload");
+const aiService = require("../Services/aiService");
 
 const createPost = async (req, res) => {
     const { title, content } = req.body;
@@ -46,6 +47,27 @@ const createPost = async (req, res) => {
             coverImage: req.localImage,
             tags: tags
         });
+
+        // Auto-generate AI metadata if enabled
+        try {
+            const [seoData, summary] = await Promise.all([
+                aiService.generateSEOMetadata(title, content),
+                aiService.generateSummary(content)
+            ]);
+
+            // Update post with AI metadata
+            post.aiMeta = {
+                summary: summary,
+                seoTitle: seoData.seoTitle,
+                seoDescription: seoData.seoDescription,
+                suggestedTags: seoData.suggestedTags,
+                generatedAt: new Date()
+            };
+
+            await post.save();
+        } catch (aiError) {
+            console.log("AI metadata generation failed, but post created:", aiError.message);
+        }
 
         res.status(201).json(post);
     } catch (err) {
@@ -123,7 +145,7 @@ const updatePost = async (req, res) => {
             }
             post.coverImage = req.localImage;
         }
-        
+
         // Handle tag updates
         if (req.body.tags) {
             // Handle both string and array formats
@@ -218,21 +240,21 @@ const toggleLike = async (req, res) => {
 
 // Search posts by text and/or tags
 const searchPosts = async (req, res) => {
-  try {
-    const { q, tags } = req.query;
-    let query = {};
+    try {
+        const { q, tags } = req.query;
+        let query = {};
 
-    if (q) query.$text = { $search: q };
-    if (tags) query.tags = { $in: tags.split(',').map(tag => tag.trim()) };
+        if (q) query.$text = { $search: q };
+        if (tags) query.tags = { $in: tags.split(',').map(tag => tag.trim()) };
 
-    const posts = await Post.find(query)
-      .populate("author", "firstname lastname username role profilePicture profileImage")
-      .sort({ createdAt: -1 });
+        const posts = await Post.find(query)
+            .populate("author", "firstname lastname username role profilePicture profileImage")
+            .sort({ createdAt: -1 });
 
-    res.json({ posts });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to search posts" });
-  }
+        res.json({ posts });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to search posts" });
+    }
 };
 
 module.exports = {

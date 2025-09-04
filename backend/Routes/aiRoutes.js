@@ -4,7 +4,6 @@ const {
     generateOutline,
     generateIntroductions,
     improveContent,
-    generateSEOData,
     generateSummary,
     generatePostAIMetadata,
     suggestContentIdeas,
@@ -17,10 +16,9 @@ router.post("/generate-outline", verifyToken, generateOutline);
 router.post("/generate-introductions", verifyToken, generateIntroductions);
 router.post("/improve-content", verifyToken, improveContent);
 
-// SEO & Metadata Routes
-router.post("/generate-seo", verifyToken, generateSEOData);
-router.post("/generate-summary", verifyToken, generateSummary);
-router.post("/posts/:id/generate-metadata", verifyToken, generatePostAIMetadata);
+// SEO & Metadata Routes  //okk
+router.post("/posts/:postId/summary", verifyToken, generateSummary); //ok
+router.post("/posts/:postId/generate-metadata", verifyToken, generatePostAIMetadata); //ok
 
 // Content Suggestion Routes
 router.get("/suggest-content", verifyToken, suggestContentIdeas);
@@ -28,7 +26,5 @@ router.get("/suggest-content", verifyToken, suggestContentIdeas);
 // User AI Settings Routes
 router.put("/settings", verifyToken, updateAISettings);
 
-// Summary generation for specific post
-router.post("/posts/:postId/summary", verifyToken, generateSummary);
 
 module.exports = router;

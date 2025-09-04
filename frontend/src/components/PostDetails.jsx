@@ -150,10 +150,10 @@ const PostDetails = () => {
         />
 
         {/* AI Tools for Authors/Admins */}
-        {user && (
+        {/* {user && (
           (post.author && user.id === post.author._id) ||
           user.role === 'admin'
-        ) && (
+        ) && ( */}
             <div className="mb-8">
               <AISummaryGenerator
                 postId={post._id}
@@ -169,7 +169,7 @@ const PostDetails = () => {
                 }}
               />
             </div>
-          )}
+           {/* )} */}
 
         {/* AI Generated Metadata Display */}
         {post.aiMeta && (

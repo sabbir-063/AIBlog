@@ -8,7 +8,6 @@ const Profile = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState('profile-info');
   const { user } = useAuth();
-  const navigate = useNavigate();
   
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -355,7 +354,6 @@ const ChangePassword = () => {
     </div>
   );
 };
-
 
 const MyPosts = () => {
   const [posts, setPosts] = useState([]);

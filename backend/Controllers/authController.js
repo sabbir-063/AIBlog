@@ -78,7 +78,8 @@ const loginUser = async (req, res) => {
                 profileImage: user.profileImage,
                 username: user.username,
                 email: user.email,
-                role: "author"
+                role: "author",
+                aiSettings: user.aiSettings
             }
         });
     } catch (err) {

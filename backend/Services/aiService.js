@@ -105,14 +105,12 @@ class AIService {
             
             Title: ${title}
             Content: ${content.substring(0, 1000)}...
-            
+            Just give me the JSON, no preamble or explanation.
             Provide JSON response with:
             {
                 "seoTitle": "SEO-optimized title (max 60 chars)",
                 "seoDescription": "Meta description (max 160 chars)",
                 "suggestedTags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-                "keywords": ["keyword1", "keyword2", "keyword3"],
-                "slug": "url-friendly-slug"
             }`;
 
             const completion = await this.groq.chat.completions.create({
@@ -120,7 +118,7 @@ class AIService {
                 messages: [{ role: "user", content: prompt }],
                 temperature: 0.3,
             });
-
+            console.log("SEO Metadata Response:", completion.choices[0]?.message?.content);
             return JSON.parse(completion.choices[0]?.message?.content);
         } catch (error) {
             console.error("Error generating SEO metadata:", error);
@@ -155,13 +153,13 @@ class AIService {
             User interests: ${userInterests.join(', ') || 'general topics'}
             Existing blog tags: ${existingTags.slice(0, 10).join(', ') || 'none'}
             
+            Just give me the JSON, no preamble or explanation.
             Format as JSON array:
             [
                 {
                     "title": "Blog post title",
                     "description": "Brief description of the post",
                     "suggestedTags": ["tag1", "tag2", "tag3"],
-                    "difficulty": "beginner|intermediate|advanced"
                 }
             ]`;
 
@@ -180,3 +178,13 @@ class AIService {
 }
 
 module.exports = new AIService();
+
+// async generateBlogOutline(topic, userTone = 'neutral')
+// async generateIntroductions(topic, count = 3, userTone = 'neutral')
+// async improveContent(content, improvementType = 'readability', userTone = 'neutral')
+// async generateSEOMetadata(title, content)
+// async generateSummary(content, maxLength = 150)
+// async suggestContentIdeas(userInterests = [], existingTags = [])
+// async generateBlogOutline(topic, userTone = 'neutral')
+// async generateIntroductions(topic, count = 3, userTone = 'neutral')
+// async suggestContentIdeas(userInterests = [], existingTags = []) 

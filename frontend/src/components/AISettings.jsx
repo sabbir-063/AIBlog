@@ -20,7 +20,7 @@ const AISettings = () => {
             setSettings({
                 aiAssistantEnabled: user.aiSettings.aiAssistantEnabled ?? true,
                 preferredTone: user.aiSettings.preferredTone || 'neutral',
-                contentSuggestions: user.aiSettings.contentSuggestions ?? true
+                contentSuggestions: user.aiSettings.contentSuggestions ?? false
             });
         }
     }, [user]);

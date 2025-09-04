@@ -84,43 +84,18 @@ const improveContent = async (req, res) => {
     }
 };
 
-// Generate SEO metadata for a post
-const generateSEOData = async (req, res) => {
-    try {
-        const { title, content } = req.body;
-
-        if (!title || !content) {
-            return res.status(400).json({ error: "Title and content are required" });
-        }
-
-        const seoData = await aiService.generateSEOMetadata(title, content);
-
-        res.json({
-            success: true,
-            data: seoData
-        });
-    } catch (error) {
-        console.error("Error generating SEO data:", error);
-        res.status(500).json({ error: "Failed to generate SEO data" });
-    }
-};
-
 // Generate post summary
 const generateSummary = async (req, res) => {
+    console.log("summary params, postId ", req.params.postId);
     try {
-        const { postId } = req.params;
-        const { content } = req.body;
-
-        let postContent = content;
-
-        // If postId is provided, fetch the post
-        if (postId && !content) {
-            const post = await Post.findById(postId);
-            if (!post) {
-                return res.status(404).json({ error: "Post not found" });
-            }
-            postContent = post.content;
+        const postId = req.params.postId;
+        // console.log("postId: ", postId);
+        let postContent = "";
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
         }
+        postContent = post.content;
 
         if (!postContent) {
             return res.status(400).json({ error: "Content is required" });
@@ -150,9 +125,10 @@ const generateSummary = async (req, res) => {
 
 // Auto-generate AI metadata for existing post
 const generatePostAIMetadata = async (req, res) => {
+    console.log("generatePostAIMetadata params, postId ", req.params.postId);
     try {
-        const { id } = req.params;
-        const { userId } = req.user;
+        const id  = req.params.postId;
+        // const { userId } = req.user;
 
         const post = await Post.findById(id);
         if (!post) {
@@ -160,16 +136,17 @@ const generatePostAIMetadata = async (req, res) => {
         }
 
         // Check if user owns the post or is admin
-        if (post.author.toString() !== userId && req.user.role !== 'admin') {
-            return res.status(403).json({ error: "Not authorized" });
-        }
+        // if (post.author.toString() !== userId && req.user.role !== 'admin') {
+        //     return res.status(403).json({ error: "Not authorized" });
+        // }
 
         // Generate all AI metadata
         const [seoData, summary] = await Promise.all([
             aiService.generateSEOMetadata(post.title, post.content),
             aiService.generateSummary(post.content)
         ]);
-
+        console.log("SEO Data: ", seoData);
+        console.log("Summary: ", summary);
         // Update post with AI metadata
         const updatedPost = await Post.findByIdAndUpdate(
             id,
@@ -197,8 +174,9 @@ const generatePostAIMetadata = async (req, res) => {
 
 // Suggest content ideas for user
 const suggestContentIdeas = async (req, res) => {
+    console.log("suggestContentIdeas called for user ", req.user);
     try {
-        const { id: userId } = req.user;
+        const { userId } = req.user.id;
 
         // Get user's existing posts to analyze their interests
         const userPosts = await Post.find({ author: userId })
@@ -222,7 +200,7 @@ const suggestContentIdeas = async (req, res) => {
 // Update user AI settings
 const updateAISettings = async (req, res) => {
     try {
-        const { id: userId } = req.user;
+        const userId = req.user.id;
         const { aiAssistantEnabled, preferredTone, contentSuggestions } = req.body;
 
         const updateData = {};
@@ -241,7 +219,7 @@ const updateAISettings = async (req, res) => {
             { $set: updateData },
             { new: true }
         ).select('-password');
-
+        console.log("Updated data: ", updateData, " ", updatedUser, " ", req.user);
         res.json({
             success: true,
             data: updatedUser
@@ -256,7 +234,6 @@ module.exports = {
     generateOutline,
     generateIntroductions,
     improveContent,
-    generateSEOData,
     generateSummary,
     generatePostAIMetadata,
     suggestContentIdeas,
